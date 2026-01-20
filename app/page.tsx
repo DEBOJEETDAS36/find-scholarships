@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { scholarships } from "../data/scholarships";
+import { scholarships } from "@/data/scholarships";
+import Link from "next/link";
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,10 +32,22 @@ export default function Home() {
       <div className="max-w-3xl mx-auto space-y-4">
         {filteredScholarships.length > 0 ? (
           filteredScholarships.map((s) => (
-            <div
-              key={s.id}
-              className="bg-white p-4 rounded-lg shadow"
-            >
+            // <div
+            //   key={s.id}
+            //   className="bg-white p-4 rounded-lg shadow"
+            // >
+            //   <h2 className="text-xl text-black font-semibold">{s.name}</h2>
+            //   <p className="text-sm text-gray-600">
+            //     Category: {s.category} | State: {s.state}
+            //   </p>
+            //   <p className="text-sm text-gray-600">
+            //     Deadline: {s.deadline}
+            //   </p>
+            // </div>
+
+            <Link key = {s.id} href={`/scholarship/${s.id}`}>
+            <div 
+            className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition cursor-pointer">
               <h2 className="text-xl text-black font-semibold">{s.name}</h2>
               <p className="text-sm text-gray-600">
                 Category: {s.category} | State: {s.state}
@@ -43,6 +56,7 @@ export default function Home() {
                 Deadline: {s.deadline}
               </p>
             </div>
+          </Link>
           ))
         ) : (
           <p className="text-center text-gray-500">
