@@ -84,7 +84,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
   const scholarship = docSnap.data();
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6">
+    <main className="min-h-screen bg-gray-200 p-6">
       <div className="max-w-3xl mx-auto">
         {/* Back Button */}
         <Link
@@ -95,11 +95,11 @@ export default async function ScholarshipDetails({ params }: PageProps) {
         </Link>
 
         <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">
+          <h1 className="text-3xl font-bold text-black mb-6">
             {scholarship.name}
           </h1>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 text-gray-700">
             <div className="space-y-4">
               <p>
                 <span className="font-semibold text-gray-700">Category:</span>{" "}
@@ -110,7 +110,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                 {scholarship.state}
               </p>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-4 text-gray-700">
               <p>
                 <span className="font-semibold text-gray-700">Education:</span>{" "}
                 {scholarship.education}
