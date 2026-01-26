@@ -58,7 +58,7 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
+    <main className="min-h-screen bg-gray-200 p-6">
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow">
         <h1 className="text-2xl font-bold mb-6 text-blue-600">
           Admin – Add Scholarship
