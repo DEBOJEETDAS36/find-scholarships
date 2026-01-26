@@ -32,13 +32,25 @@ export default function AdminPage() {
 
     try {
       await addDoc(collection(db, "scholarships"), {
-        ...form,
+        name: form.name,
+        category: form.category,
+        state: form.state,
+        education: form.education,
+        incomeLimit: form.incomeLimit,
+        provider: form.provider,
+        link: form.link,
+
+        // Firestore timestamps
         deadline: Timestamp.fromDate(new Date(form.deadline)),
         createdAt: Timestamp.now(),
+        lastVerified: Timestamp.now(),
+
+        // Metadata
         source: "Admin",
       });
 
       setSuccess("Scholarship added successfully ✅");
+
       setForm({
         name: "",
         category: "",
@@ -51,16 +63,19 @@ export default function AdminPage() {
       });
     } catch (error) {
       console.error(error);
-      alert("Error adding scholarship");
+      alert("❌ Error adding scholarship");
     }
 
     setLoading(false);
   }
 
-  // Reusable wrapper for styling consistency
-  const inputGroupClass = "flex flex-col md:flex-row md:items-center gap-2";
-  const labelClass = "md:w-1/3 font-medium text-gray-700";
-  const inputClass = "flex-1 p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500";
+  // Styling helpers
+  const inputGroup =
+    "flex flex-col md:flex-row md:items-center gap-2";
+  const label =
+    "md:w-1/3 font-medium text-gray-700";
+  const input =
+    "flex-1 p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500";
 
   return (
     <main className="min-h-screen bg-gray-200 p-6">
@@ -76,145 +91,120 @@ export default function AdminPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          
           {/* Name */}
-          <div className={inputGroupClass}>
-            <label htmlFor="name" className={labelClass}>
-              Scholarship Name
-            </label>
+          <div className={inputGroup}>
+            <label className={label}>Scholarship Name</label>
             <input
-              id="name"
               name="name"
-              placeholder="e.g. Tata Merit Scholarship"
               value={form.name}
               onChange={handleChange}
               required
-              className={inputClass}
+              className={input}
+              placeholder="Central Sector Scholarship"
             />
           </div>
 
           {/* Category */}
-          <div className={inputGroupClass}>
-            <label htmlFor="category" className={labelClass}>
-              Category
-            </label>
+          <div className={inputGroup}>
+            <label className={label}>Category</label>
             <input
-              id="category"
               name="category"
-              placeholder="e.g. Merit, SC, ST, Girls"
               value={form.category}
               onChange={handleChange}
               required
-              className={inputClass}
+              className={input}
+              placeholder="Merit-based / SC / ST / Minority"
             />
           </div>
 
           {/* State */}
-          <div className={inputGroupClass}>
-            <label htmlFor="state" className={labelClass}>
-              State / Region
-            </label>
+          <div className={inputGroup}>
+            <label className={label}>State / Region</label>
             <input
-              id="state"
               name="state"
-              placeholder="e.g. All India, Maharashtra"
               value={form.state}
               onChange={handleChange}
               required
-              className={inputClass}
+              className={input}
+              placeholder="All India / Maharashtra"
             />
           </div>
 
           {/* Education */}
-          <div className={inputGroupClass}>
-            <label htmlFor="education" className={labelClass}>
-              Education Level
-            </label>
+          <div className={inputGroup}>
+            <label className={label}>Education Level</label>
             <input
-              id="education"
               name="education"
-              placeholder="e.g. UG, PG, Class 11"
               value={form.education}
               onChange={handleChange}
               required
-              className={inputClass}
+              className={input}
+              placeholder="UG / PG / Class 11"
             />
           </div>
 
           {/* Income Limit */}
-          <div className={inputGroupClass}>
-            <label htmlFor="incomeLimit" className={labelClass}>
-              Income Limit <span className="text-gray-400 text-sm font-normal">(Optional)</span>
+          <div className={inputGroup}>
+            <label className={label}>
+              Income Limit <span className="text-gray-400">(optional)</span>
             </label>
             <input
-              id="incomeLimit"
               name="incomeLimit"
-              placeholder="e.g. < 2.5 Lakhs"
               value={form.incomeLimit}
               onChange={handleChange}
-              className={inputClass}
+              className={input}
+              placeholder="₹8,00,000"
             />
           </div>
 
           {/* Provider */}
-          <div className={inputGroupClass}>
-            <label htmlFor="provider" className={labelClass}>
-              Provider Name
-            </label>
+          <div className={inputGroup}>
+            <label className={label}>Provider</label>
             <input
-              id="provider"
               name="provider"
-              placeholder="e.g. Govt of India, AICTE"
               value={form.provider}
               onChange={handleChange}
               required
-              className={inputClass}
+              className={input}
+              placeholder="Ministry of Education"
             />
           </div>
 
           {/* Link */}
-          <div className={inputGroupClass}>
-            <label htmlFor="link" className={labelClass}>
-              Application Link
-            </label>
+          <div className={inputGroup}>
+            <label className={label}>Application Link</label>
             <input
-              id="link"
               name="link"
               type="url"
-              placeholder="https://..."
               value={form.link}
               onChange={handleChange}
               required
-              className={inputClass}
+              className={input}
+              placeholder="https://scholarships.gov.in"
             />
           </div>
 
           {/* Deadline */}
-          <div className={inputGroupClass}>
-            <label htmlFor="deadline" className={labelClass}>
-              Application Deadline
-            </label>
+          <div className={inputGroup}>
+            <label className={label}>Deadline</label>
             <input
-              id="deadline"
-              type="date"
               name="deadline"
+              type="date"
               value={form.deadline}
               onChange={handleChange}
               required
-              className={inputClass}
+              className={input}
             />
           </div>
 
-          {/* Submit Button */}
-          <div className="pt-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 text-white font-bold py-3 rounded hover:bg-blue-700 transition disabled:bg-blue-300"
-            >
-              {loading ? "Adding..." : "Add Scholarship"}
-            </button>
-          </div>
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-4 bg-blue-600 text-white py-3 rounded font-bold hover:bg-blue-700 transition disabled:bg-blue-300"
+          >
+            {loading ? "Adding..." : "Add Scholarship"}
+          </button>
         </form>
       </div>
     </main>
