@@ -27,8 +27,10 @@ export default function AdminLogin() {
 
       router.push("/admin");
     } catch (err: any) {
-      setError("Invalid credentials or not authorized");
+        console.error("🔥 FIREBASE AUTH ERROR:", err);
+        setError(err.code || err.message);
     }
+
 
     setLoading(false);
   }
@@ -50,7 +52,8 @@ export default function AdminLogin() {
         <input
           type="email"
           placeholder="Admin Email"
-          className="w-full p-3 border rounded"
+          // Added text-black here
+          className="w-full p-3 border rounded text-black"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -59,7 +62,8 @@ export default function AdminLogin() {
         <input
           type="password"
           placeholder="Password"
-          className="w-full p-3 border rounded"
+          // Added text-black here
+          className="w-full p-3 border rounded text-black"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required

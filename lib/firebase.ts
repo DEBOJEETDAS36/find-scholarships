@@ -3,7 +3,7 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyAlU07ByXoX-qXfU3X4mnQa7e29fnpH1QE",
   authDomain: "scholarship-finder-566bc.firebaseapp.com",
   projectId: "scholarship-finder-566bc",
   storageBucket: "scholarship-finder-566bc.appspot.com",

@@ -1,10 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { db, auth } from "@/lib/firebase";
 
 export default function AdminPage() {
+  const router = useRouter();
+
+  // 🔐 AUTH STATE
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // 📝 FORM STATE (MUST BE DECLARED BEFORE ANY RETURN)
   const [form, setForm] = useState({
     name: "",
     category: "",
@@ -19,6 +27,31 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
 
+  // 🔐 AUTH PROTECTION
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user || user.email !== "admin@example.com") {
+        router.push("/admin/login");
+      } else {
+        setCheckingAuth(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  // ⏳ SHOW LOADING WHILE CHECKING AUTH
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-lg font-semibold">
+        Checking admin access...
+      </div>
+    );
+  }
+
+  // ======================
+  // HANDLERS
+  // ======================
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) {
@@ -32,20 +65,10 @@ export default function AdminPage() {
 
     try {
       await addDoc(collection(db, "scholarships"), {
-        name: form.name,
-        category: form.category,
-        state: form.state,
-        education: form.education,
-        incomeLimit: form.incomeLimit,
-        provider: form.provider,
-        link: form.link,
-
-        // Firestore timestamps
+        ...form,
         deadline: Timestamp.fromDate(new Date(form.deadline)),
         createdAt: Timestamp.now(),
         lastVerified: Timestamp.now(),
-
-        // Metadata
         source: "Admin",
       });
 
@@ -69,7 +92,9 @@ export default function AdminPage() {
     setLoading(false);
   }
 
-  // Styling helpers
+  // ======================
+  // UI
+  // ======================
   const inputGroup =
     "flex flex-col md:flex-row md:items-center gap-2";
   const label =
@@ -91,100 +116,27 @@ export default function AdminPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Name */}
-          <div className={inputGroup}>
-            <label className={label}>Scholarship Name</label>
-            <input
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              required
-              className={input}
-              placeholder="Central Sector Scholarship"
-            />
-          </div>
+          {Object.entries({
+            name: "Scholarship Name",
+            category: "Category",
+            state: "State / Region",
+            education: "Education Level",
+            incomeLimit: "Income Limit",
+            provider: "Provider",
+            link: "Application Link",
+          }).map(([key, labelText]) => (
+            <div key={key} className={inputGroup}>
+              <label className={label}>{labelText}</label>
+              <input
+                name={key}
+                value={(form as any)[key]}
+                onChange={handleChange}
+                className={input}
+                required={key !== "incomeLimit"}
+              />
+            </div>
+          ))}
 
-          {/* Category */}
-          <div className={inputGroup}>
-            <label className={label}>Category</label>
-            <input
-              name="category"
-              value={form.category}
-              onChange={handleChange}
-              required
-              className={input}
-              placeholder="Merit-based / SC / ST / Minority"
-            />
-          </div>
-
-          {/* State */}
-          <div className={inputGroup}>
-            <label className={label}>State / Region</label>
-            <input
-              name="state"
-              value={form.state}
-              onChange={handleChange}
-              required
-              className={input}
-              placeholder="All India / Maharashtra"
-            />
-          </div>
-
-          {/* Education */}
-          <div className={inputGroup}>
-            <label className={label}>Education Level</label>
-            <input
-              name="education"
-              value={form.education}
-              onChange={handleChange}
-              required
-              className={input}
-              placeholder="UG / PG / Class 11"
-            />
-          </div>
-
-          {/* Income Limit */}
-          <div className={inputGroup}>
-            <label className={label}>
-              Income Limit <span className="text-gray-400">(optional)</span>
-            </label>
-            <input
-              name="incomeLimit"
-              value={form.incomeLimit}
-              onChange={handleChange}
-              className={input}
-              placeholder="₹8,00,000"
-            />
-          </div>
-
-          {/* Provider */}
-          <div className={inputGroup}>
-            <label className={label}>Provider</label>
-            <input
-              name="provider"
-              value={form.provider}
-              onChange={handleChange}
-              required
-              className={input}
-              placeholder="Ministry of Education"
-            />
-          </div>
-
-          {/* Link */}
-          <div className={inputGroup}>
-            <label className={label}>Application Link</label>
-            <input
-              name="link"
-              type="url"
-              value={form.link}
-              onChange={handleChange}
-              required
-              className={input}
-              placeholder="https://scholarships.gov.in"
-            />
-          </div>
-
-          {/* Deadline */}
           <div className={inputGroup}>
             <label className={label}>Deadline</label>
             <input
@@ -197,7 +149,6 @@ export default function AdminPage() {
             />
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
