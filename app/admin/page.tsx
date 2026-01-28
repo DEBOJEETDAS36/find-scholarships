@@ -1,5 +1,7 @@
 "use client";
 
+import { signOut } from "firebase/auth";
+
 import { useState, useEffect } from "react";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
@@ -48,6 +50,13 @@ export default function AdminPage() {
       </div>
     );
   }
+
+  //Logout function
+  async function handleLogout() {
+  await signOut(auth);
+  window.location.href = "/admin/login";
+}
+
 
   // ======================
   // HANDLERS
@@ -105,9 +114,19 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen bg-gray-200 p-6">
       <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow">
-        <h1 className="text-2xl font-bold mb-6 text-blue-600 border-b pb-4">
-          Admin – Add Scholarship
-        </h1>
+        <div className="flex justify-between items-center mb-6">
+  <h1 className="text-2xl font-bold text-blue-600">
+    Admin Dashboard
+  </h1>
+
+  <button
+    onClick={handleLogout}
+    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+  >
+    Logout
+  </button>
+</div>
+
 
         {success && (
           <div className="mb-6 p-4 bg-green-50 text-green-700 border border-green-200 rounded">
