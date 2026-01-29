@@ -48,53 +48,74 @@ export default function BulkUploadPage() {
     setUploading(true);
     setMessage("");
 
-    Papa.parse<CsvRow>(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        try {
-          for (const row of results.data) {
-            // Basic validation
-            if (
-              !row.name ||
-              !row.category ||
-              !row.state ||
-              !row.education ||
-              !row.provider ||
-              !row.link ||
-              !row.deadline
-            ) {
-              continue;
+    interface PapaParseError {
+        code: string;
+        message: string;
+        row: number;
+    }
+
+    interface PapaParseMeta {
+        delimiter: string;
+        linebreak: string;
+        aborted: boolean;
+        truncated: boolean;
+        cursor: number;
+        fields?: string[];
+    }
+
+    interface PapaParseResult<T> {
+        data: T[];
+        errors: PapaParseError[];
+        meta: PapaParseMeta;
+    }
+
+    Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: async (results: PapaParseResult<CsvRow>) => {
+            try {
+                for (const row of results.data) {
+                    // Basic validation
+                    if (
+                        !row.name ||
+                        !row.category ||
+                        !row.state ||
+                        !row.education ||
+                        !row.provider ||
+                        !row.link ||
+                        !row.deadline
+                    ) {
+                        continue;
+                    }
+
+                    await addDoc(collection(db, "scholarships"), {
+                        name: row.name,
+                        category: row.category,
+                        state: row.state,
+                        education: row.education,
+                        incomeLimit: row.incomeLimit || "",
+                        provider: row.provider,
+                        link: row.link,
+                        deadline: Timestamp.fromDate(new Date(row.deadline)),
+                        createdAt: Timestamp.now(),
+                        lastVerified: Timestamp.now(),
+                        source: "CSV",
+                    });
+                }
+
+                setMessage("✅ Scholarships uploaded successfully!");
+            } catch (err: unknown) {
+                console.error(err);
+                setMessage("❌ Upload failed. Check console.");
+            } finally {
+                setUploading(false);
             }
-
-            await addDoc(collection(db, "scholarships"), {
-              name: row.name,
-              category: row.category,
-              state: row.state,
-              education: row.education,
-              incomeLimit: row.incomeLimit || "",
-              provider: row.provider,
-              link: row.link,
-              deadline: Timestamp.fromDate(new Date(row.deadline)),
-              createdAt: Timestamp.now(),
-              lastVerified: Timestamp.now(),
-              source: "CSV",
-            });
-          }
-
-          setMessage("✅ Scholarships uploaded successfully!");
-        } catch (err) {
-          console.error(err);
-          setMessage("❌ Upload failed. Check console.");
-        } finally {
-          setUploading(false);
-        }
-      },
-      error: (err) => {
-        console.error(err);
-        setMessage("❌ CSV parsing error");
-        setUploading(false);
-      },
+        },
+        error: (err: PapaParseError) => {
+            console.error(err);
+            setMessage("❌ CSV parsing error");
+            setUploading(false);
+        },
     });
   }
 
