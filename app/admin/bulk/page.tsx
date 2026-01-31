@@ -7,9 +7,11 @@ import {
   addDoc,
   Timestamp,
 } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+// AUTH IMPORTS - COMMENTED OUT FOR DIRECT ACCESS
+// import { onAuthStateChanged } from "firebase/auth";
+// import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { db, auth } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 
 type CsvRow = {
   name: string;
@@ -29,15 +31,15 @@ export default function BulkUploadPage() {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // 🔐 Admin protection
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (!user || user.email !== "admin@example.com") {
-        router.push("/admin/login");
-      }
-    });
-    return () => unsub();
-  }, [router]);
+  // 🔐 AUTH PROTECTION - COMMENTED OUT FOR DIRECT ACCESS
+  // useEffect(() => {
+  //   const unsub = onAuthStateChanged(auth, (user) => {
+  //     if (!user || user.email !== "admin@example.com") {
+  //       router.push("/admin/login");
+  //     }
+  //   });
+  //   return () => unsub();
+  // }, [router]);
 
   async function handleUpload() {
     if (!file) {
@@ -122,9 +124,25 @@ export default function BulkUploadPage() {
   return (
     <main className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-xl mx-auto bg-white p-6 rounded shadow">
-        <h1 className="text-2xl font-bold mb-4 text-blue-600">
-          Bulk Scholarship Upload (CSV)
-        </h1>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold text-blue-600">
+            Bulk Scholarship Upload (CSV)
+          </h1>
+          <div className="flex gap-2">
+            <button
+              onClick={() => router.push('/admin')}
+              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm"
+            >
+              Add Single
+            </button>
+            <button
+              onClick={() => router.push('/admin/manage')}
+              className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm"
+            >
+              Manage
+            </button>
+          </div>
+        </div>
 
         <p className="text-sm text-gray-600 mb-4">
           Upload a CSV file containing scholarship data.

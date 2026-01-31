@@ -9,9 +9,11 @@ import {
   updateDoc,
   Timestamp,
 } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+// AUTH IMPORTS - COMMENTED OUT FOR DIRECT ACCESS
+// import { onAuthStateChanged } from "firebase/auth";
+// import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { db, auth } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 
 type Scholarship = {
   id: string;
@@ -28,22 +30,23 @@ type Scholarship = {
 export default function ManageScholarships() {
   const router = useRouter();
 
-  const [checkingAuth, setCheckingAuth] = useState(true);
+  // AUTH STATE - COMMENTED OUT FOR DIRECT ACCESS
+  // const [checkingAuth, setCheckingAuth] = useState(true);
   const [data, setData] = useState<Scholarship[]>([]);
   const [editing, setEditing] = useState<Scholarship | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // 🔐 Admin Protection
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (!user || user.email !== "admin@example.com") {
-        router.push("/admin/login");
-      } else {
-        setCheckingAuth(false);
-      }
-    });
-    return () => unsub();
-  }, [router]);
+  // 🔐 AUTH PROTECTION - COMMENTED OUT FOR DIRECT ACCESS
+  // useEffect(() => {
+  //   const unsub = onAuthStateChanged(auth, (user) => {
+  //     if (!user || user.email !== "admin@example.com") {
+  //       router.push("/admin/login");
+  //     } else {
+  //       setCheckingAuth(false);
+  //     }
+  //   });
+  //   return () => unsub();
+  // }, [router]);
 
   // 📥 Fetch scholarships
   useEffect(() => {
@@ -59,13 +62,14 @@ export default function ManageScholarships() {
     fetchData();
   }, []);
 
-  if (checkingAuth) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-black">
-        Checking admin access...
-      </div>
-    );
-  }
+  // AUTH LOADING CHECK - COMMENTED OUT FOR DIRECT ACCESS
+  // if (checkingAuth) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center text-black">
+  //       Checking admin access...
+  //     </div>
+  //   );
+  // }
 
   // 🗑️ DELETE
   async function handleDelete(id: string) {
@@ -98,9 +102,25 @@ export default function ManageScholarships() {
   return (
     <main className="min-h-screen bg-gray-100 p-6 text-black">
       <div className="max-w-6xl mx-auto bg-white p-6 rounded shadow">
-        <h1 className="text-2xl font-bold mb-6 text-blue-700">
-          Manage Scholarships
-        </h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-blue-700">
+            Manage Scholarships
+          </h1>
+          <div className="flex gap-2">
+            <button
+              onClick={() => router.push('/admin')}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            >
+              Add New
+            </button>
+            <button
+              onClick={() => router.push('/admin/bulk')}
+              className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
+            >
+              Bulk Upload
+            </button>
+          </div>
+        </div>
 
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
