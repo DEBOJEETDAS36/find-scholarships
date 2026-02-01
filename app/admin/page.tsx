@@ -5,6 +5,9 @@
 // import { onAuthStateChanged } from "firebase/auth";
 // import { auth } from "@/lib/firebase";
 
+"use client";
+import { signOut } from "next-auth/react";
+
 import { useState, useEffect } from "react";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { useRouter } from "next/navigation";
@@ -128,6 +131,12 @@ export default function AdminPage() {
           >
             Logout
           </button> */}
+
+          <button
+              onClick={() => signOut()}
+              className="text-sm text-red-600 hover:underline">
+              Logout
+          </button>
           
           <div className="flex gap-2">
             <button
