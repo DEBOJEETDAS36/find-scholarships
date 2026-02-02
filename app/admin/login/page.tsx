@@ -1,22 +1,76 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
 
 export default function AdminLogin() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+try {
+  const cred = await signInWithEmailAndPassword(auth, email, password);
+
+  if (cred.user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+    await auth.signOut();
+    throw new Error("Unauthorized admin");
+  }
+
+  router.replace("/admin");
+} catch (err: any) {
+  console.error("FIREBASE AUTH ERROR:", err.code, err.message);
+  setError(err.code || "Login failed");
+}
+
+
+    setLoading(false);
+  }
+
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow text-center">
-        <h1 className="text-2xl font-bold mb-6 text-blue-600">
-          Admin Login
-        </h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <form
+        onSubmit={handleLogin}
+        className="bg-white p-8 rounded shadow w-full max-w-md space-y-4"
+      >
+        <h1 className="text-2xl font-bold text-center">Admin Login</h1>
+
+        {error && <p className="text-red-600 text-sm">{error}</p>}
+
+        <input
+          type="email"
+          placeholder="Admin Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-3 border rounded"
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-3 border rounded"
+          required
+        />
 
         <button
-          onClick={() => signIn("google")}
-          className="bg-blue-600 text-white px-6 py-3 rounded font-bold hover:bg-blue-700"
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-3 rounded font-semibold"
         >
-          Sign in with Google
+          {loading ? "Logging in..." : "Login"}
         </button>
-      </div>
-    </main>
+      </form>
+    </div>
   );
 }

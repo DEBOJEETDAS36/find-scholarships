@@ -2,11 +2,8 @@
 
 // AUTH IMPORTS - COMMENTED OUT FOR DIRECT ACCESS
 // import { signOut } from "firebase/auth";
-// import { onAuthStateChanged } from "firebase/auth";
-// import { auth } from "@/lib/firebase";
-
-"use client";
-import { signOut } from "next-auth/react";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 import { useState, useEffect } from "react";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
@@ -17,7 +14,7 @@ export default function AdminPage() {
   const router = useRouter();
 
   // 🔐 AUTH STATE - COMMENTED OUT FOR DIRECT ACCESS
-  // const [checkingAuth, setCheckingAuth] = useState(true);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   // 📝 FORM STATE (MUST BE DECLARED BEFORE ANY RETURN)
   const [form, setForm] = useState({
@@ -35,33 +32,35 @@ export default function AdminPage() {
   const [success, setSuccess] = useState("");
 
   // 🔐 AUTH PROTECTION - COMMENTED OUT FOR DIRECT ACCESS
-  // useEffect(() => {
-  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
-  //     if (!user || user.email !== "admin@example.com") {
-  //       router.push("/admin/login");
-  //     } else {
-  //       setCheckingAuth(false);
-  //     }
-  //   });
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (
+        !user ||
+        user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL
+      ) {
+        router.replace("/admin/login");
+      } else {
+        setCheckingAuth(false);
+      }
+    });
 
-  //   return () => unsubscribe();
-  // }, [router]);
+    return () => unsubscribe();
+  }, [router]);
 
   // ⏳ SHOW LOADING WHILE CHECKING AUTH - COMMENTED OUT FOR DIRECT ACCESS
-  // if (checkingAuth) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center text-lg font-semibold">
-  //       Checking admin access...
-  //     </div>
-  //   );
-  // }
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-lg font-semibold">
+        Checking admin access...
+      </div>
+    );
+  }
 
   // LOGOUT FUNCTION - COMMENTED OUT FOR DIRECT ACCESS
-  // async function handleLogout() {
-  //   await signOut(auth);
-  //   window.location.href = "/admin/login";
-  // }
-
+  async function handleLogout() {
+    await signOut(auth);
+    router.replace("/admin/login");
+  }
 
   // ======================
   // HANDLERS
@@ -133,27 +132,27 @@ export default function AdminPage() {
           </button> */}
 
           <button
-              onClick={() => signOut()}
-              className="text-sm text-red-600 hover:underline">
-              Logout
+            onClick={handleLogout}
+            className="text-sm text-red-600 hover:underline"
+          >
+            Logout
           </button>
-          
+
           <div className="flex gap-2">
             <button
-              onClick={() => router.push('/admin/manage')}
+              onClick={() => router.push("/admin/manage")}
               className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
             >
               Manage Scholarships
             </button>
             <button
-              onClick={() => router.push('/admin/bulk')}
+              onClick={() => router.push("/admin/bulk")}
               className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
             >
               Bulk Upload
             </button>
           </div>
         </div>
-
 
         {success && (
           <div className="mb-6 p-4 bg-green-50 text-green-700 border border-green-200 rounded">
