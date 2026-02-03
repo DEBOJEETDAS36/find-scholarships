@@ -27,6 +27,11 @@ try {
 
   router.replace("/admin");
 } catch (err: any) {
+  console.group("🔥 FIREBASE LOGIN ERROR");
+  console.error("Code:", err.code);
+  console.error("Message:", err.message);
+  console.error("Full error:", err);
+  console.groupEnd();
   console.error("FIREBASE AUTH ERROR:", err.code, err.message);
   setError(err.code || "Login failed");
 }
