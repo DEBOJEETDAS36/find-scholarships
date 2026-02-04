@@ -55,7 +55,7 @@ try {
           placeholder="Admin Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 border rounded"
+          className="w-full p-3 border rounded text-black" // Added text-black here
           required
         />
 
@@ -64,7 +64,7 @@ try {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 border rounded"
+          className="w-full p-3 border rounded text-black" // Added text-black here
           required
         />
 
