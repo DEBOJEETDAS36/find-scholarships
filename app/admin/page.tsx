@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
+import { text } from "stream/consumers";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -176,7 +177,7 @@ export default function AdminPage() {
                 name={key}
                 value={(form as any)[key]}
                 onChange={handleChange}
-                className={input}
+                className={`${input} text-black focus:text-black`}
                 required={key !== "incomeLimit"}
               />
             </div>
@@ -190,7 +191,7 @@ export default function AdminPage() {
               value={form.deadline}
               onChange={handleChange}
               required
-              className={input}
+              className={`${input} text-black focus:text-black`}
             />
           </div>
 
