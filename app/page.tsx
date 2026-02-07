@@ -9,8 +9,31 @@ type Scholarship = {
   name: string;
   category: string;
   state: string;
-  deadline: string;
+  deadline: any; // 🔥 IMPORTANT — don't force string
 };
+
+// ✅ Safe Date Formatter
+function formatDeadline(deadline: any) {
+  if (!deadline) return "No deadline";
+
+  try {
+    // 🔥 Firestore Timestamp
+    if (deadline?.toDate) {
+      return deadline.toDate().toDateString();
+    }
+
+    // 🔥 Already a JS Date or string
+    const parsed = new Date(deadline);
+
+    if (isNaN(parsed.getTime())) {
+      return "No deadline";
+    }
+
+    return parsed.toDateString();
+  } catch {
+    return "No deadline";
+  }
+}
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,7 +45,7 @@ export default function Home() {
     getScholarships()
       .then((data: any) => {
         console.log("🔥 FIRESTORE DATA:", data);
-        setScholarships(data as Scholarship[]);
+        setScholarships(data);
       })
       .catch((err) => {
         console.error("❌ Firestore error:", err);
@@ -32,7 +55,7 @@ export default function Home() {
 
   // 🔍 Search filter
   const filteredScholarships = scholarships.filter((s) =>
-    s.name.toLowerCase().includes(searchTerm.toLowerCase())
+    s.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -75,7 +98,7 @@ export default function Home() {
                 </div>
 
                 <p className="text-sm text-gray-600 mt-2">
-                  Deadline: {new Date(s.deadline).toDateString()}
+                  Deadline: {formatDeadline(s.deadline)}
                 </p>
               </div>
             </Link>
@@ -91,4 +114,3 @@ export default function Home() {
     </main>
   );
 }
-
