@@ -24,36 +24,69 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, []);
 
-  // 🔐 Safe date converter
+  // ✅ Safe Firestore date conversion
   const getValidDate = (deadline: any): Date | null => {
     if (!deadline) return null;
     if (deadline?.toDate) return deadline.toDate();
+
     const d = new Date(deadline);
     return isNaN(d.getTime()) ? null : d;
   };
 
-  // 🟢🟡🔴 Deadline status
-  const getStatus = (date: Date | null) => {
+  // 🚨 Elite-level deadline status logic
+  const getDeadlineInfo = (date: Date | null) => {
     if (!date) {
-      return { color: "bg-gray-400", label: "No deadline" };
+      return {
+        text: "No deadline",
+        color: "bg-gray-400",
+      };
     }
 
     const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const d = new Date(date);
+    d.setHours(0,0,0,0);
+
     const diffDays = Math.ceil(
-      (date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+      (d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
     );
 
     if (diffDays < 0) {
-      return { color: "bg-red-500", label: "Expired" };
+      return {
+        text: "❌ Expired",
+        color: "bg-red-500",
+      };
     }
 
-    if (diffDays <= 30) {
-      return { color: "bg-yellow-400", label: "Closing soon" };
+    if (diffDays === 0) {
+      return {
+        text: "⚠️ Closing today",
+        color: "bg-red-400",
+      };
     }
 
-    return { color: "bg-green-500", label: "Open" };
+    if (diffDays === 1) {
+      return {
+        text: "⚠️ Closing tomorrow",
+        color: "bg-yellow-400",
+      };
+    }
+
+    if (diffDays <= 14) {
+      return {
+        text: `🔥 ${diffDays} days left`,
+        color: "bg-orange-400",
+      };
+    }
+
+    return {
+      text: `🟢 ${diffDays} days left`,
+      color: "bg-green-500",
+    };
   };
 
+  // 🔍 Filter + Sort by nearest deadline
   const filteredScholarships = scholarships
     .filter((s) =>
       s.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -61,8 +94,10 @@ export default function Home() {
     .sort((a, b) => {
       const da = getValidDate(a.deadline);
       const db = getValidDate(b.deadline);
+
       if (!da) return 1;
       if (!db) return -1;
+
       return da.getTime() - db.getTime();
     });
 
@@ -83,18 +118,20 @@ export default function Home() {
       </div>
 
       {loading && (
-        <p className="text-center text-gray-500">Loading scholarships...</p>
+        <p className="text-center text-gray-500">
+          Loading scholarships...
+        </p>
       )}
 
       <div className="max-w-3xl mx-auto space-y-4">
         {!loading && filteredScholarships.length > 0 ? (
           filteredScholarships.map((s) => {
             const date = getValidDate(s.deadline);
-            const status = getStatus(date);
+            const deadlineInfo = getDeadlineInfo(date);
 
             return (
               <Link key={s.id} href={`/scholarship/${s.id}`}>
-                <div className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition cursor-pointer">
+                <div className="bg-white p-4 rounded-lg shadow hover:shadow-xl transition cursor-pointer">
                   <h2 className="text-xl font-semibold text-black">
                     {s.name}
                   </h2>
@@ -108,15 +145,22 @@ export default function Home() {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+                  {/* 🔥 Status Row */}
+                  <div className="flex items-center gap-2 mt-3">
                     <span
-                      className={`w-3 h-3 rounded-full ${status.color}`}
-                      title={status.label}
+                      className={`w-3 h-3 rounded-full ${deadlineInfo.color}`}
                     />
-                    <span>
-                      {date ? date.toDateString() : "Deadline not specified"}
+
+                    <span className="text-sm font-medium text-gray-700">
+                      {deadlineInfo.text}
                     </span>
                   </div>
+
+                  <p className="text-xs text-gray-500 mt-1">
+                    {date
+                      ? date.toDateString()
+                      : "Deadline not specified"}
+                  </p>
                 </div>
               </Link>
             );
