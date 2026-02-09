@@ -33,20 +33,21 @@ export default function Home() {
     return isNaN(d.getTime()) ? null : d;
   };
 
-  // 🚨 Elite-level deadline status logic
+  // ⭐ Clean status logic (NO emojis)
   const getDeadlineInfo = (date: Date | null) => {
     if (!date) {
       return {
         text: "No deadline",
         color: "bg-gray-400",
+        expired: false,
       };
     }
 
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
 
     const d = new Date(date);
-    d.setHours(0,0,0,0);
+    d.setHours(0, 0, 0, 0);
 
     const diffDays = Math.ceil(
       (d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
@@ -54,39 +55,44 @@ export default function Home() {
 
     if (diffDays < 0) {
       return {
-        text: "❌ Expired",
+        text: "Expired",
         color: "bg-red-500",
+        expired: true,
       };
     }
 
     if (diffDays === 0) {
       return {
-        text: "⚠️ Closing today",
+        text: "Closing today",
         color: "bg-red-400",
+        expired: false,
       };
     }
 
     if (diffDays === 1) {
       return {
-        text: "⚠️ Closing tomorrow",
+        text: "Closing tomorrow",
         color: "bg-yellow-400",
+        expired: false,
       };
     }
 
     if (diffDays <= 14) {
       return {
-        text: `🔥 ${diffDays} days left`,
+        text: `${diffDays} days left`,
         color: "bg-orange-400",
+        expired: false,
       };
     }
 
     return {
-      text: `🟢 ${diffDays} days left`,
+      text: `${diffDays} days left`,
       color: "bg-green-500",
+      expired: false,
     };
   };
 
-  // 🔍 Filter + Sort by nearest deadline
+  // 🔍 Filter + Sort
   const filteredScholarships = scholarships
     .filter((s) =>
       s.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -131,12 +137,35 @@ export default function Home() {
 
             return (
               <Link key={s.id} href={`/scholarship/${s.id}`}>
-                <div className="bg-white p-4 rounded-lg shadow hover:shadow-xl transition cursor-pointer">
-                  <h2 className="text-xl font-semibold text-black">
-                    {s.name}
-                  </h2>
+                <div
+                  className={`p-4 rounded-lg shadow transition cursor-pointer
+                  ${
+                    deadlineInfo.expired
+                      ? "bg-gray-100 opacity-70"
+                      : "bg-white hover:shadow-xl"
+                  }`}
+                >
+                  {/* ⭐ TOP ROW */}
+                  <div className="flex justify-between items-start gap-4">
 
-                  <div className="flex gap-2 mt-1">
+                    <h2 className="text-xl font-semibold text-black">
+                      {s.name}
+                    </h2>
+
+                    {/* ✅ SINGLE DOT + TEXT */}
+                    <div className="flex items-center gap-2 whitespace-nowrap">
+                      <span
+                        className={`w-2.5 h-2.5 rounded-full ${deadlineInfo.color}`}
+                      />
+
+                      <span className="text-sm font-semibold text-gray-700">
+                        {deadlineInfo.text}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* TAGS */}
+                  <div className="flex gap-2 mt-2">
                     <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
                       {s.category}
                     </span>
@@ -145,18 +174,8 @@ export default function Home() {
                     </span>
                   </div>
 
-                  {/* 🔥 Status Row */}
-                  <div className="flex items-center gap-2 mt-3">
-                    <span
-                      className={`w-3 h-3 rounded-full ${deadlineInfo.color}`}
-                    />
-
-                    <span className="text-sm font-medium text-gray-700">
-                      {deadlineInfo.text}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-gray-500 mt-1">
+                  {/* DATE */}
+                  <p className="text-xs text-gray-500 mt-2">
                     {date
                       ? date.toDateString()
                       : "Deadline not specified"}
