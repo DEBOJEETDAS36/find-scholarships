@@ -9,7 +9,7 @@ type Scholarship = {
   name: string;
   category: string;
   state: string;
-  deadline: any; // Firestore timestamp OR string
+  deadline: any;
 };
 
 export default function Home() {
@@ -17,47 +17,53 @@ export default function Home() {
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 Fetch data from Firestore
   useEffect(() => {
     getScholarships()
-      .then((data: any) => {
-        console.log("🔥 FIRESTORE DATA:", data);
-        setScholarships(data as Scholarship[]);
-      })
-      .catch((err) => {
-        console.error("❌ Firestore error:", err);
-      })
+      .then((data: any) => setScholarships(data))
+      .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  // ✅ Safe Date Converter (handles Timestamp + string)
+  // 🔐 Safe date converter
   const getValidDate = (deadline: any): Date | null => {
     if (!deadline) return null;
-
-    // Firestore Timestamp
-    if (deadline?.toDate) {
-      return deadline.toDate();
-    }
-
-    // ISO/String
+    if (deadline?.toDate) return deadline.toDate();
     const d = new Date(deadline);
     return isNaN(d.getTime()) ? null : d;
   };
 
-  // 🔥 FILTER + SORT
+  // 🟢🟡🔴 Deadline status
+  const getStatus = (date: Date | null) => {
+    if (!date) {
+      return { color: "bg-gray-400", label: "No deadline" };
+    }
+
+    const today = new Date();
+    const diffDays = Math.ceil(
+      (date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (diffDays < 0) {
+      return { color: "bg-red-500", label: "Expired" };
+    }
+
+    if (diffDays <= 30) {
+      return { color: "bg-yellow-400", label: "Closing soon" };
+    }
+
+    return { color: "bg-green-500", label: "Open" };
+  };
+
   const filteredScholarships = scholarships
     .filter((s) =>
       s.name.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
-      const dateA = getValidDate(a.deadline);
-      const dateB = getValidDate(b.deadline);
-
-      // Push invalid dates to bottom
-      if (!dateA) return 1;
-      if (!dateB) return -1;
-
-      return dateA.getTime() - dateB.getTime(); // nearest first
+      const da = getValidDate(a.deadline);
+      const db = getValidDate(b.deadline);
+      if (!da) return 1;
+      if (!db) return -1;
+      return da.getTime() - db.getTime();
     });
 
   return (
@@ -66,34 +72,30 @@ export default function Home() {
         Scholarship Finder
       </h1>
 
-      {/* Search Bar */}
       <div className="max-w-3xl mx-auto mb-6">
         <input
           type="text"
           placeholder="Search scholarships..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {/* Loading */}
       {loading && (
-        <p className="text-center text-gray-500">
-          Loading scholarships...
-        </p>
+        <p className="text-center text-gray-500">Loading scholarships...</p>
       )}
 
-      {/* Scholarship List */}
       <div className="max-w-3xl mx-auto space-y-4">
         {!loading && filteredScholarships.length > 0 ? (
           filteredScholarships.map((s) => {
-            const validDate = getValidDate(s.deadline);
+            const date = getValidDate(s.deadline);
+            const status = getStatus(date);
 
             return (
               <Link key={s.id} href={`/scholarship/${s.id}`}>
                 <div className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition cursor-pointer">
-                  <h2 className="text-xl text-black font-semibold">
+                  <h2 className="text-xl font-semibold text-black">
                     {s.name}
                   </h2>
 
@@ -106,12 +108,15 @@ export default function Home() {
                     </span>
                   </div>
 
-                  <p className="text-sm text-gray-600 mt-2">
-                    Deadline:{" "}
-                    {validDate
-                      ? validDate.toDateString()
-                      : "Not specified"}
-                  </p>
+                  <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+                    <span
+                      className={`w-3 h-3 rounded-full ${status.color}`}
+                      title={status.label}
+                    />
+                    <span>
+                      {date ? date.toDateString() : "Deadline not specified"}
+                    </span>
+                  </div>
                 </div>
               </Link>
             );
