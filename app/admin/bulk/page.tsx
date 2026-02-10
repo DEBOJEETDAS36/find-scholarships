@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import Papa from "papaparse";
 import {
-  collection,
-  addDoc,
   Timestamp,
+  doc,
+  setDoc,
+  getDoc,
 } from "firebase/firestore";
 // AUTH IMPORTS - COMMENTED OUT FOR DIRECT ACCESS
 // import { onAuthStateChanged } from "firebase/auth";
@@ -51,73 +52,109 @@ export default function BulkUploadPage() {
     setMessage("");
 
     interface PapaParseError {
-        code: string;
-        message: string;
-        row: number;
+      code: string;
+      message: string;
+      row: number;
     }
 
     interface PapaParseMeta {
-        delimiter: string;
-        linebreak: string;
-        aborted: boolean;
-        truncated: boolean;
-        cursor: number;
-        fields?: string[];
+      delimiter: string;
+      linebreak: string;
+      aborted: boolean;
+      truncated: boolean;
+      cursor: number;
+      fields?: string[];
     }
 
     interface PapaParseResult<T> {
-        data: T[];
-        errors: PapaParseError[];
-        meta: PapaParseMeta;
+      data: T[];
+      errors: PapaParseError[];
+      meta: PapaParseMeta;
     }
 
     Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        complete: async (results: PapaParseResult<CsvRow>) => {
-            try {
-                for (const row of results.data) {
-                    // Basic validation
-                    if (
-                        !row.name ||
-                        !row.category ||
-                        !row.state ||
-                        !row.education ||
-                        !row.provider ||
-                        !row.link ||
-                        !row.deadline
-                    ) {
-                        continue;
-                    }
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results: PapaParseResult<CsvRow>) => {
+        try {
+          let added = 0;
+          let skipped = 0;
 
-                    await addDoc(collection(db, "scholarships"), {
-                        name: row.name,
-                        category: row.category,
-                        state: row.state,
-                        education: row.education,
-                        incomeLimit: row.incomeLimit || "",
-                        provider: row.provider,
-                        link: row.link,
-                        deadline: Timestamp.fromDate(new Date(row.deadline)),
-                        createdAt: Timestamp.now(),
-                        lastVerified: Timestamp.now(),
-                        source: "CSV",
-                    });
-                }
-
-                setMessage("✅ Scholarships uploaded successfully!");
-            } catch (err: unknown) {
-                console.error(err);
-                setMessage("❌ Upload failed. Check console.");
-            } finally {
-                setUploading(false);
+          for (const row of results.data) {
+            // ✅ Basic validation
+            if (
+              !row.name ||
+              !row.category ||
+              !row.state ||
+              !row.education ||
+              !row.provider ||
+              !row.link ||
+              !row.deadline
+            ) {
+              skipped++;
+              continue;
             }
-        },
-        error: (err: PapaParseError) => {
-            console.error(err);
-            setMessage("❌ CSV parsing error");
-            setUploading(false);
-        },
+
+            // ✅ Strong normalization (prevents sneaky duplicates)
+            const normalizedName = row.name
+              .trim()
+              .toLowerCase()
+              .replace(/\s+/g, "-");
+
+            const scholarshipRef = doc(
+              db,
+              "scholarships",
+              normalizedName
+            );
+
+            // ✅ HARD DUPLICATE CHECK
+            const existingDoc = await getDoc(scholarshipRef);
+
+            if (existingDoc.exists()) {
+              skipped++;
+              continue; // 🔥 DO NOT overwrite
+            }
+
+            // Safe date parsing
+            const parsedDate = new Date(row.deadline);
+
+            if (isNaN(parsedDate.getTime())) {
+              skipped++;
+              continue;
+            }
+
+            await setDoc(scholarshipRef, {
+              name: row.name.trim(),
+              category: row.category.trim(),
+              state: row.state.trim(),
+              education: row.education.trim(),
+              incomeLimit: row.incomeLimit?.trim() || "",
+              provider: row.provider.trim(),
+              link: row.link.trim(),
+              deadline: Timestamp.fromDate(parsedDate),
+              createdAt: Timestamp.now(),
+              lastVerified: Timestamp.now(),
+              source: "CSV",
+            });
+
+            added++;
+          }
+
+          setMessage(
+            `✅ Upload complete.\nAdded: ${added}\nSkipped (duplicates/invalid): ${skipped}`
+          );
+        } catch (err) {
+          console.error(err);
+          setMessage("❌ Upload failed. Check console.");
+        } finally {
+          setUploading(false);
+        }
+      },
+      error: (err: PapaParseError) => {
+        console.error(err);
+        setMessage("❌ CSV parsing error");
+        setUploading(false);
+      },
     });
   }
 
@@ -164,7 +201,7 @@ export default function BulkUploadPage() {
         </button>
 
         {message && (
-          <div className="mt-4 p-3 bg-gray-50 border rounded text-sm">
+          <div className="mt-4 p-3 bg-gray-50 border rounded text-sm whitespace-pre-line">
             {message}
           </div>
         )}
