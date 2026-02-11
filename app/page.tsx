@@ -33,7 +33,7 @@ export default function Home() {
     return isNaN(d.getTime()) ? null : d;
   };
 
-  // ⭐ Clean status logic (NO emojis)
+  // ⭐ Clean status logic
   const getDeadlineInfo = (date: Date | null) => {
     if (!date) {
       return {
@@ -108,89 +108,106 @@ export default function Home() {
     });
 
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">
-        Scholarship Finder
-      </h1>
+    <main className="min-h-screen bg-gray-100">
 
-      <div className="max-w-3xl mx-auto mb-6">
-        <input
-          type="text"
-          placeholder="Search scholarships..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
-        />
+      {/* ✅ NAVBAR */}
+      <div className="w-full bg-white shadow-sm border-b">
+        <div className="max-w-5xl mx-auto flex justify-between items-center p-4">
+          
+          <h1 className="text-2xl font-bold text-blue-600">
+            Scholarship Finder
+          </h1>
+
+          {/* ⭐ LOGIN BUTTON */}
+          <Link href="/login">
+            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+              Student Login
+            </button>
+          </Link>
+
+        </div>
       </div>
 
-      {loading && (
-        <p className="text-center text-gray-500">
-          Loading scholarships...
-        </p>
-      )}
 
-      <div className="max-w-3xl mx-auto space-y-4">
-        {!loading && filteredScholarships.length > 0 ? (
-          filteredScholarships.map((s) => {
-            const date = getValidDate(s.deadline);
-            const deadlineInfo = getDeadlineInfo(date);
+      {/* BODY */}
+      <div className="p-6">
 
-            return (
-              <Link key={s.id} href={`/scholarship/${s.id}`}>
-                <div
-                  className={`p-4 rounded-lg shadow transition cursor-pointer
-                  ${
-                    deadlineInfo.expired
-                      ? "bg-gray-100 opacity-70"
-                      : "bg-white hover:shadow-xl"
-                  }`}
-                >
-                  {/* ⭐ TOP ROW */}
-                  <div className="flex justify-between items-start gap-4">
+        {/* Search */}
+        <div className="max-w-3xl mx-auto mb-6">
+          <input
+            type="text"
+            placeholder="Search scholarships..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
-                    <h2 className="text-xl font-semibold text-black">
-                      {s.name}
-                    </h2>
+        {loading && (
+          <p className="text-center text-gray-500">
+            Loading scholarships...
+          </p>
+        )}
 
-                    {/* ✅ SINGLE DOT + TEXT */}
-                    <div className="flex items-center gap-2 whitespace-nowrap">
-                      <span
-                        className={`w-2.5 h-2.5 rounded-full ${deadlineInfo.color}`}
-                      />
+        <div className="max-w-3xl mx-auto space-y-4">
+          {!loading && filteredScholarships.length > 0 ? (
+            filteredScholarships.map((s) => {
+              const date = getValidDate(s.deadline);
+              const deadlineInfo = getDeadlineInfo(date);
 
-                      <span className="text-sm font-semibold text-gray-700">
-                        {deadlineInfo.text}
+              return (
+                <Link key={s.id} href={`/scholarship/${s.id}`}>
+                  <div
+                    className={`p-4 rounded-lg shadow transition cursor-pointer
+                    ${
+                      deadlineInfo.expired
+                        ? "bg-gray-100 opacity-70"
+                        : "bg-white hover:shadow-xl"
+                    }`}
+                  >
+                    <div className="flex justify-between items-start gap-4">
+
+                      <h2 className="text-xl font-semibold text-black">
+                        {s.name}
+                      </h2>
+
+                      <div className="flex items-center gap-2 whitespace-nowrap">
+                        <span
+                          className={`w-2.5 h-2.5 rounded-full ${deadlineInfo.color}`}
+                        />
+
+                        <span className="text-sm font-semibold text-gray-700">
+                          {deadlineInfo.text}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 mt-2">
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                        {s.category}
+                      </span>
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                        {s.state}
                       </span>
                     </div>
-                  </div>
 
-                  {/* TAGS */}
-                  <div className="flex gap-2 mt-2">
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                      {s.category}
-                    </span>
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                      {s.state}
-                    </span>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {date
+                        ? date.toDateString()
+                        : "Deadline not specified"}
+                    </p>
                   </div>
-
-                  {/* DATE */}
-                  <p className="text-xs text-gray-500 mt-2">
-                    {date
-                      ? date.toDateString()
-                      : "Deadline not specified"}
-                  </p>
-                </div>
-              </Link>
-            );
-          })
-        ) : (
-          !loading && (
-            <p className="text-center text-gray-500">
-              No scholarships found
-            </p>
-          )
-        )}
+                </Link>
+              );
+            })
+          ) : (
+            !loading && (
+              <p className="text-center text-gray-500">
+                No scholarships found
+              </p>
+            )
+          )}
+        </div>
       </div>
     </main>
   );
