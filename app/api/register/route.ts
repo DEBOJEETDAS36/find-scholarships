@@ -1,5 +1,6 @@
 import clientPromise from "@/lib/mongodb";
 import bcrypt from "bcrypt";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
@@ -8,7 +9,7 @@ export async function POST(req: Request) {
     const { email, password, name } = body;
 
     if (!email || !password) {
-      return Response.json(
+      return NextResponse.json(
         { error: "Missing fields" },
         { status: 400 }
       );
@@ -22,7 +23,7 @@ export async function POST(req: Request) {
       .findOne({ email });
 
     if (existingUser) {
-      return Response.json(
+      return NextResponse.json(
         { error: "User already exists" },
         { status: 400 }
       );
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
       createdAt: new Date(),
     });
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       message: "User created",
     });
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
 
     console.error("REGISTER ERROR:", error);
 
-    return Response.json(
+    return NextResponse.json(
       { error: "Server error" },
       { status: 500 }
     );
