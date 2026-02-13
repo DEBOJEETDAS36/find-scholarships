@@ -16,7 +16,7 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow">
-        <h1 className="text-2xl font-bold mb-4">
+        <h1 className="text-2xl text-black font-bold mb-4">
           Welcome, {session.user?.name || session.user?.email}
         </h1>
 
