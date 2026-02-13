@@ -21,7 +21,7 @@ export default function Dashboard() {
         </h1>
 
         <button
-          onClick={() => signOut()}
+          onClick={() => signOut({callbackUrl: "/login"})}
           className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg"
         >
           Logout
