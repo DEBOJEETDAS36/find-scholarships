@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { getScholarships } from "@/lib/getScholarships";
 
 type Scholarship = {
@@ -16,6 +18,9 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { data: session } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     getScholarships()
@@ -118,16 +123,37 @@ export default function Home() {
             Scholarship Finder
           </h1>
 
-          {/* ⭐ LOGIN BUTTON */}
-          <Link href="/login">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
-              Student Login
-            </button>
-          </Link>
+          {/* ⭐ AUTH SECTION */}
+          {session ? (
+            <div className="flex items-center gap-4">
+
+              {/* Profile Initial */}
+              <div
+                onClick={() => router.push("/dashboard")}
+                className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold cursor-pointer"
+              >
+                {session.user?.name?.charAt(0).toUpperCase()}
+              </div>
+
+              {/* Logout */}
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="text-sm text-gray-500 hover:text-red-500 transition"
+              >
+                Logout
+              </button>
+
+            </div>
+          ) : (
+            <Link href="/login">
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                Student Login
+              </button>
+            </Link>
+          )}
 
         </div>
       </div>
-
 
       {/* BODY */}
       <div className="p-6">
@@ -175,7 +201,6 @@ export default function Home() {
                         <span
                           className={`w-2.5 h-2.5 rounded-full ${deadlineInfo.color}`}
                         />
-
                         <span className="text-sm font-semibold text-gray-700">
                           {deadlineInfo.text}
                         </span>
