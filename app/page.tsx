@@ -29,6 +29,22 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, []);
 
+  // ⭐⭐ NEW: Bookmark Handler ⭐⭐
+  const handleBookmark = async (scholarshipId: string) => {
+    try {
+      await fetch("/api/bookmark", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scholarshipId }),
+      });
+
+      alert("Bookmarked!");
+    } catch (error) {
+      console.error("Bookmark error:", error);
+      alert("Failed to bookmark");
+    }
+  };
+
   // ✅ Safe Firestore date conversion
   const getValidDate = (deadline: any): Date | null => {
     if (!deadline) return null;
@@ -127,7 +143,6 @@ export default function Home() {
           {session ? (
             <div className="flex items-center gap-4">
 
-              {/* Profile Initial */}
               <div
                 onClick={() => router.push("/dashboard")}
                 className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold cursor-pointer"
@@ -135,7 +150,6 @@ export default function Home() {
                 {session.user?.name?.charAt(0).toUpperCase()}
               </div>
 
-              {/* Logout */}
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
                 className="text-sm text-gray-500 hover:text-red-500 transition"
@@ -158,7 +172,6 @@ export default function Home() {
       {/* BODY */}
       <div className="p-6">
 
-        {/* Search */}
         <div className="max-w-3xl mx-auto mb-6">
           <input
             type="text"
@@ -221,6 +234,20 @@ export default function Home() {
                         ? date.toDateString()
                         : "Deadline not specified"}
                     </p>
+
+                    {/* ⭐⭐ NEW: Bookmark Button ⭐⭐ */}
+                    {session && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleBookmark(s.id);
+                        }}
+                        className="text-sm text-blue-600 mt-2 hover:underline"
+                      >
+                        ⭐ Bookmark
+                      </button>
+                    )}
+
                   </div>
                 </Link>
               );
