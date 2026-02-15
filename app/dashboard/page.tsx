@@ -8,25 +8,25 @@ export default function Overview() {
   return (
     <div className="space-y-6">
 
-      <h1 className="text-3xl font-bold">
+      <h1 className="text-3xl font-bold text-black">
         Welcome, {session?.user?.name}
       </h1>
 
       <div className="grid grid-cols-3 gap-6">
 
         <div className="bg-white p-6 rounded-xl shadow">
-          <h3 className="text-lg font-semibold">Saved Scholarships</h3>
-          <p className="text-2xl mt-2 font-bold">--</p>
+          <h3 className="text-lg font-semibold text-black">Saved Scholarships</h3>
+          <p className="text-2xl mt-2 font-bold text-black">--</p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
-          <h3 className="text-lg font-semibold">AI Matches</h3>
-          <p className="text-2xl mt-2 font-bold">--</p>
+          <h3 className="text-lg font-semibold text-black">AI Matches</h3>
+          <p className="text-2xl mt-2 font-bold text-black">--</p>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
-          <h3 className="text-lg font-semibold">Applications</h3>
-          <p className="text-2xl mt-2 font-bold">--</p>
+          <h3 className="text-lg font-semibold text-black">Applications</h3>
+          <p className="text-2xl mt-2 font-bold text-black">--</p>
         </div>
 
       </div>
