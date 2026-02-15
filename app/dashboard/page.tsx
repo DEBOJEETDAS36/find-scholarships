@@ -1,32 +1,36 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
-export default function Dashboard() {
+export default function Overview() {
   const { data: session } = useSession();
 
-  if (!session) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Not logged in
-      </div>
-    );
-  }
-
   return (
-    <main className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow">
-        <h1 className="text-2xl text-black font-bold mb-4">
-          Welcome, {session.user?.name || session.user?.email}
-        </h1>
+    <div className="space-y-6">
 
-        <button
-          onClick={() => signOut({callbackUrl: "/login"})}
-          className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg"
-        >
-          Logout
-        </button>
+      <h1 className="text-3xl font-bold">
+        Welcome, {session?.user?.name}
+      </h1>
+
+      <div className="grid grid-cols-3 gap-6">
+
+        <div className="bg-white p-6 rounded-xl shadow">
+          <h3 className="text-lg font-semibold">Saved Scholarships</h3>
+          <p className="text-2xl mt-2 font-bold">--</p>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow">
+          <h3 className="text-lg font-semibold">AI Matches</h3>
+          <p className="text-2xl mt-2 font-bold">--</p>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow">
+          <h3 className="text-lg font-semibold">Applications</h3>
+          <p className="text-2xl mt-2 font-bold">--</p>
+        </div>
+
       </div>
-    </main>
+
+    </div>
   );
 }
