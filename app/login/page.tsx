@@ -131,7 +131,7 @@ export default function LoginPage() {
         </form>
 
         {/* TOGGLE */}
-        <p className="text-center text-sm mt-6">
+        <p className="text-center text-sm mt-6 text-black">
           {isSignup
             ? "Already have an account?"
             : "New student?"}
