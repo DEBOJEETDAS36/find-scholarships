@@ -31,6 +31,6 @@
     "types/**/*.d.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
-  ],
+, "scripts/scraper.cjs"  ],
   "exclude": ["node_modules"]
 }
