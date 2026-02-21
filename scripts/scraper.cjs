@@ -18,10 +18,13 @@ async function scrapeSchoolScholarships() {
   try {
     console.log("Scraping started...");
 
+    const { data } = await axios.get("https://scholarships.gov.in/All-Scholarships");
+console.log(data.substring(0, 500));
+
     // 🔽 Replace this with real website later
-    const { data } = await axios.get(
-      "https://example.com"
-    );
+    // const { data } = await axios.get(
+    //   "https://example.com"
+    // );
 
     const $ = cheerio.load(data);
 
@@ -71,9 +74,9 @@ function slugify(text) {
     .replace(/(^-|-$)+/g, "");
 }
 
-// scrapeSchoolScholarships();
+scrapeSchoolScholarships();
 
-// scrapeSchoolScholarships();
+scrapeSchoolScholarships();
 
 if (require.main === module) {
   scrapeSchoolScholarships();
