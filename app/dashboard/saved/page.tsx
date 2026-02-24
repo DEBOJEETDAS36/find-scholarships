@@ -68,7 +68,7 @@ export default function SavedScholarships() {
         {saved.map((s) => (
           <Link key={s.id} href={`/scholarship/${s.id}`}>
             <div className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition cursor-pointer">
-              <h2 className="text-lg font-semibold">
+              <h2 className="text-lg font-semibold text-black">
                 {s.name}
               </h2>
 
