@@ -50,16 +50,16 @@ export default function SavedScholarships() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">
+      <h1 className="text-2xl font-bold mb-6 text-black">
         Saved Scholarships
       </h1>
 
       {loading && (
-        <p className="text-gray-500">Loading...</p>
+        <p className="text-gray-500 text-black">Loading...</p>
       )}
 
       {!loading && saved.length === 0 && (
-        <p className="text-gray-500">
+        <p className="text-gray-500 text-black">
           You haven't bookmarked any scholarships yet.
         </p>
       )}
